@@ -84,3 +84,7 @@ class DatabaseSetup:
             raise Exception("Internal error: Don't call is_import_required() before do_it()!")
         else:
             return self._is_import_required
+
+    @property
+    def db_session(self):
+        return self._db_session

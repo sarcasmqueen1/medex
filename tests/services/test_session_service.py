@@ -3,9 +3,6 @@ import pytest
 from medex.database_schema import Sessions, SessionNameIdsMatchingFilter, SessionFilteredNameIds
 from medex.services.session import SessionService
 
-# noinspection PyUnresolvedReferences
-from tests.fixtures.db_session import db_session
-
 
 def setup_session(db_session, service: SessionService):
     service.touch()

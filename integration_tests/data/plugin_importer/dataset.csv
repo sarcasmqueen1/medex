@@ -1,0 +1,10 @@
+name_id,case_id,measurement,date,time,key,value
+p000098,case000198,baseline,2019-02-11,17:47:53,Delta9,0.8
+p000098,case000198,follow up 2 years,2009-02-14,23:18:33,HNR05,91.8
+p000098,case000098,baseline,1992-09-28,10:49:37,Gender,weiblich
+p000042,case000042,baseline,2002-06-16,19:03:22,Delta9,0.9
+p000042,case000042,follow up 1 year,1996-02-03,16:15:48,HNR05,56.7
+p000042,case000042,follow up 2 years,2006-10-07,22:46:15,Gender,weiblich
+p000024,case000124,baseline,2017-11-08,08:20:34,Delta9,1.7
+p000024,case000124,baseline,1990-11-10,10:22:32,HNR05,37.5
+p000024,case000124,follow up 1 year,1991-02-18,19:24:34,Gender,weiblich

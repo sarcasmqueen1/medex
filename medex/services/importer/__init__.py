@@ -8,6 +8,7 @@ from medex.services.importer.database_setup import DatabaseSetup
 from medex.services.importer.dataset import DatasetImporter
 from medex.services.importer.entitity import EntityImporter
 from medex.services.importer.header import HeaderImporter
+from medex.services.importer.plugin_importer import PluginImporter
 
 
 class Importer:
@@ -18,12 +19,17 @@ class Importer:
             config: Config,
             entity_importer: EntityImporter = None,
             dataset_importer: DatasetImporter = None,
+            plugin_importer: PluginImporter = None,
     ):
         self._setup = setup
         self._header_importer = header_importer
         self._entity_importer = entity_importer
         self._dataset_importer = dataset_importer
+        self._plugin_importer = plugin_importer
         self._config = config
+        if self._plugin_importer is not None:
+            print(f"Loading plugins from {config.plugin_path} ...")
+            self._plugin_importer.load_plugins()
 
     def setup_database(self):
         self._setup.do_it()
@@ -43,6 +49,9 @@ class Importer:
             print(f"Touching {self._config.import_marker_path}")
             Path(self._config.import_marker_path).touch()
         print('Database setup completed.')
+        if self._plugin_importer is not None:
+            print('Calling on_db_ready')
+            self._plugin_importer.on_db_ready(self._setup.db_session)
 
     def _do_import_preflight_check(self):
         config = self._config
@@ -60,9 +69,10 @@ def get_importer():
     return Importer(
         setup=DatabaseSetup(db_session=db_session, db_engine=db_engine, config=config),
         header_importer=_get_header_importer(db_session, config),
+        config=config,
         entity_importer=_get_entity_importer(db_session, config),
         dataset_importer=_get_dataset_importer(db_session, config),
-        config=config
+        plugin_importer=_get_plugin_importer(config),
     )
 
 
@@ -95,4 +105,14 @@ def _get_dataset_importer(db_session, config):
         source_name=config.dataset_path,
         entity_service=EntityService(database_session=db_session),
         db_session=db_session,
+    )
+
+
+def _get_plugin_importer(config=get_config()):
+    if not exists(config.plugin_path):
+        print(f"Couldn't find plugin folder ({config.plugin_path}) - skipping plugin import.")
+        return None
+
+    return PluginImporter(
+        plugin_folder=config.plugin_path
     )
