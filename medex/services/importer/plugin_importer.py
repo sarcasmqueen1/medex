@@ -148,7 +148,6 @@ class PluginImporter:
                     alias.key == key
                 )
             ).add_columns(
-                # Because of the group by we aggregate but since only one value will be returned it doesn't matter
                 func.max(alias.value).label(key)
             )
 
