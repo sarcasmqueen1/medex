@@ -174,9 +174,8 @@ def test_categorical_numerical_plugin(db_session):
     ])
 
     importer = PluginImporter(plugin_folder)
-    # set the plugin_modules to the inner class Plugin we want to test
-    # anstatt das plugin module aus dem pluin ordner
-    # zu holen und es so real zu laden, wird das tesplugin in der klasse genutzt, um konstellationen zu testen
+    # Anstatt das plugin_module aus dem Plugin Ordner zu holen und so das tatsächliche Plugin zu laden,
+    # wird das Tesplugin in der Klasse genutzt, um verschiedene Testfälle testen zu können
     importer.plugin_modules = [TestPluginCategoricalNumericalValues.get_plugin_class()]
 
     # 'Mock' für die DB mit der fixtures db

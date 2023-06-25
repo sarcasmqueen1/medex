@@ -17,7 +17,6 @@ class PluginImporter:
     def __init__(self, plugin_folder):
         self.plugin_folder = plugin_folder
         self.plugin_modules = []
-        # list[calc_plugin] = []
 
     @staticmethod
     def _get_module_name(file):
@@ -148,7 +147,6 @@ class PluginImporter:
                     alias.key == key
                 )
             ).add_columns(
-                # Because of the group by we aggregate but since only one value will be returned it doesn't matter
                 func.max(alias.value).label(key)
             )
 
