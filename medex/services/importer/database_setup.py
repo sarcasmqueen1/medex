@@ -51,7 +51,7 @@ class DatabaseSetup:
             config.header_path,
             config.entities_path,
             config.dataset_path,
-         ]:
+        ]:
             if exists(path) and stat(path).st_mtime >= marker_mtime:
                 print(f"File '{path}' was modified after last import - forcing data import.")
                 self._is_import_required = True
@@ -84,7 +84,3 @@ class DatabaseSetup:
             raise Exception("Internal error: Don't call is_import_required() before do_it()!")
         else:
             return self._is_import_required
-
-    @property
-    def db_session(self):
-        return self._db_session

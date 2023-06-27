@@ -8,9 +8,9 @@ import pandas as pd
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Query, aliased
 
-from interfaces.plugin_interface import PluginInterface
 from medex.database_schema import TableCategorical, TableNumerical, NameType
 from medex.dto.entity import EntityType
+from medex.interfaces.plugin_interface import PluginInterface
 
 
 class PluginImporter:
@@ -46,48 +46,63 @@ class PluginImporter:
         return plugin_files
 
     # Hier wird die Liste mit den bereits geladenen Plugins benutzt und diese werden automatisch ausgeführt.
-    def on_db_ready(self, db_session):
+    def apply_all_plugins(self, db_session):
         print('Start on_db_ready')
 
         for plugin_module in self.plugin_modules:
             print('current Plugin: ' + plugin_module.get_name())
-            table = TableNumerical if plugin_module.get_entity_type() == EntityType.NUMERICAL else TableCategorical
-            query = self.build_query(db_session, plugin_module, table)
-            entity_key = f'calculated_{plugin_module.get_name()}'
-
-            resultList = query.all()
-            print(resultList)
-            df = pd.DataFrame(query.all())
-
+            plugin_result_table = TableNumerical if plugin_module.get_entity_type() == EntityType.NUMERICAL else TableCategorical
+            df = self.get_entries_for_calc_from_db(db_session, plugin_module, plugin_result_table)
             if df.empty:
                 print('No suitable database entries found')
                 return
             print('current Plugin: ' + plugin_module.get_name())
 
-            calc_result = plugin_module.calculate(self, df)
-            db_session.merge(
-                NameType(key=entity_key, synonym=entity_key, description='', unit='', show='', type="String")
-            )
+            entity_key = f'calculated_{plugin_module.get_name()}'
 
-            today = datetime.now()
+            self.add_entity(db_session, entity_key)
 
-            date = today.strftime("%d/%m/%Y")
-            time = today.strftime("%H:%M:%S")
+            calc_result = self.calculate_values(df, plugin_module)
 
-            for index, row in calc_result.iterrows():
-                calc_row = table(
-                    name_id=row["name_id"],
-                    key=entity_key,
-                    value=row["value"],
-                    case_id=row["name_id"],
-                    measurement="",
-                    date=date,
-                    time=time
-                )
-                db_session.add(calc_row)
+            date, time = self.get_date_time_strings()
 
-            db_session.commit()
+            self.add_calculated_rows(calc_result, date, db_session, entity_key, plugin_result_table, time)
+
             print(f'{plugin_module.get_name}: Added entries f {len(calc_result)} patients')
+
+    def get_entries_for_calc_from_db(self, db_session, plugin_module, plugin_result_table):
+        query = self.build_query(db_session, plugin_module, plugin_result_table)
+        df = pd.DataFrame(query.all())
+        return df
+
+    def add_calculated_rows(self, calc_result, date, db_session, entity_key, table, time):
+        for index, row in calc_result.iterrows():
+            calc_row = table(
+                name_id=row["name_id"],
+                key=entity_key,
+                value=row["value"],
+                case_id=row["name_id"],
+                measurement="",
+                date=date,
+                time=time
+            )
+            db_session.add(calc_row)
+        db_session.commit()
+
+    def get_date_time_strings(self):
+        today = datetime.now()
+        date = today.strftime("%d/%m/%Y")
+        time = today.strftime("%H:%M:%S")
+        return date, time
+
+    def calculate_values(self, df, plugin_module):
+        calc_result = plugin_module.calculate(self, df)
+        return calc_result
+
+    def add_entity(self, db_session, entity_key):
+        db_session.merge(
+            NameType(key=entity_key, synonym=entity_key, description='', unit='', show='', type="String")
+        )
 
     @staticmethod
     def _import_module(module_name, file):

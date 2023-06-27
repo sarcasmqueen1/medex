@@ -1,7 +1,7 @@
 import pandas as pd
 
-from interfaces.plugin_interface import PluginInterface
 from medex.dto.entity import EntityType
+from medex.interfaces.plugin_interface import PluginInterface
 
 
 class CalcPlugin(PluginInterface):

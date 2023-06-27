@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 from pytest import fixture
 from sqlalchemy import select, func
+from integration_tests.fixtures.db_session import db_session  # noqa
 
 from medex.database_schema import TableNumerical, TableCategorical
 from medex.services.config import Config, set_config

@@ -33,7 +33,7 @@ def test_importer(db_session, config, marker):
     numerical_values = rs_num.count
     rs_cat = db_session.execute(select(func.count(TableCategorical.id).label('count'))).first()
     categorical_values = rs_cat.count
-    # because the plugin adds three values when starting the project
+    # 2003 because of the 3 added entries
     assert numerical_values + categorical_values == 2003
 
     rs_papient = db_session.execute(select(func.count(Patient.case_id).label('count'))).first()

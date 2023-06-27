@@ -1,8 +1,9 @@
 import pandas as pd
+from tests.fixtures.db_session import db_session  # noqa
 
-from interfaces.plugin_interface import PluginInterface
-from medex.database_schema import TableCategorical, TableNumerical, Header
+from medex.database_schema import TableCategorical, TableNumerical
 from medex.dto.entity import EntityType
+from medex.interfaces.plugin_interface import PluginInterface
 from medex.services.importer import PluginImporter
 
 
@@ -31,7 +32,7 @@ def test_one_numerical_plugin(db_session):
     importer.plugin_modules = [TestPluginOneNumericalValue.get_plugin_class()]
 
     # 'Mock' für die DB mit der fixtures db
-    importer.on_db_ready(db_session)
+    importer.apply_all_plugins(db_session)
 
     # Holt alle Einträge aus table numerical nach Plugin Ausführung
     all_numerical_entries = db_session.query(TableNumerical).order_by(TableNumerical.id).all()
@@ -74,7 +75,7 @@ def test_one_categorical_plugin(db_session):
     importer.plugin_modules = [TestPluginOneCategoricalValue.get_plugin_class()]
 
     # 'Mock' für die DB mit der fixtures db
-    importer.on_db_ready(db_session)
+    importer.apply_all_plugins(db_session)
 
     # Holt alle Einträge aus table categorical nach Plugin Ausführung
     all_categorical_entries = db_session.query(TableCategorical).order_by(TableCategorical.id).all()
@@ -128,7 +129,7 @@ def test_two_categorical_plugin(db_session):
     importer.plugin_modules = [TestPluginTwoCategoricalValues.get_plugin_class()]
 
     # 'Mock' für die DB mit der fixtures db
-    importer.on_db_ready(db_session)
+    importer.apply_all_plugins(db_session)
 
     # Holt alle Einträge aus table categorical nach Plugin Ausführung
     all_categorical_entries = db_session.query(TableCategorical).order_by(TableCategorical.id).all()
@@ -179,7 +180,7 @@ def test_categorical_numerical_plugin(db_session):
     importer.plugin_modules = [TestPluginCategoricalNumericalValues.get_plugin_class()]
 
     # 'Mock' für die DB mit der fixtures db
-    importer.on_db_ready(db_session)
+    importer.apply_all_plugins(db_session)
 
     # Holt alle Einträge aus table categorical nach Plugin Ausführung
     all_categorical_entries = db_session.query(TableCategorical).order_by(TableCategorical.id).all()

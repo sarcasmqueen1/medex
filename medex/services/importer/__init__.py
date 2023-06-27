@@ -1,6 +1,7 @@
 from os.path import exists
 from pathlib import Path
 
+from integration_tests.fixtures.db_session import db_session
 from medex.services.database import get_db_session, get_db_engine
 from medex.services.entity import EntityService
 from medex.services.config import Config, get_config
@@ -51,7 +52,7 @@ class Importer:
         print('Database setup completed.')
         if self._plugin_importer is not None:
             print('Calling on_db_ready')
-            self._plugin_importer.on_db_ready(self._setup.db_session)
+            self._plugin_importer.apply_all_plugins(get_db_session())
 
     def _do_import_preflight_check(self):
         config = self._config
